@@ -18,9 +18,9 @@ func AuthRoutes(db *ent.Client) *AuthRouter {
 	}
 }
 
-func (r *AuthRouter) Register(g *echo.Group) {
-	g.POST("/sign-up-user", r.userHandler.SignUp)
-	g.POST("/sign-up-driver", r.userHandler.SignUpDriver)
-	g.POST("/sign-in-user", r.userHandler.SignInUser)
-	g.POST("/sign-in-driver", r.userHandler.SignInUserDriver)
+func (ctrl *AuthRouter) Register(g *echo.Group) {
+	g.POST("/sign-up-user", ctrl.userHandler.SignUp)
+	g.POST("/sign-up-driver", ctrl.userHandler.SignUpDriver)
+	g.POST("/sign-in-user", ctrl.userHandler.SignInUser)
+	g.POST("/sign-in-driver", ctrl.userHandler.SignInUserDriver)
 }
