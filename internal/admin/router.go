@@ -3,6 +3,7 @@ package admin
 import (
 	"github.com/labstack/echo/v4"
 	"gojeksrepo/ent"
+	"gojeksrepo/internal/middleware"
 )
 
 type AdminRouter struct {
@@ -19,5 +20,5 @@ func AdminRoutes(db *ent.Client) *AdminRouter {
 }
 
 func (ctrl *AdminRouter) Register(g *echo.Group) {
-	g.POST("/approve-admin", ctrl.adminHandler.ApproveByAdmin)
+	g.POST("/approve-admin", ctrl.adminHandler.ApproveByAdmin, middleware.AuthMiddleware)
 }
