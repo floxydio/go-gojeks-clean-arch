@@ -386,6 +386,16 @@ func DistanceKmLTE(v float64) predicate.Trip {
 	return predicate.Trip(sql.FieldLTE(FieldDistanceKm, v))
 }
 
+// DistanceKmIsNil applies the IsNil predicate on the "distance_km" field.
+func DistanceKmIsNil() predicate.Trip {
+	return predicate.Trip(sql.FieldIsNull(FieldDistanceKm))
+}
+
+// DistanceKmNotNil applies the NotNil predicate on the "distance_km" field.
+func DistanceKmNotNil() predicate.Trip {
+	return predicate.Trip(sql.FieldNotNull(FieldDistanceKm))
+}
+
 // NumericEQ applies the EQ predicate on the "numeric" field.
 func NumericEQ(v string) predicate.Trip {
 	return predicate.Trip(sql.FieldEQ(FieldNumeric, v))
@@ -439,6 +449,16 @@ func NumericHasPrefix(v string) predicate.Trip {
 // NumericHasSuffix applies the HasSuffix predicate on the "numeric" field.
 func NumericHasSuffix(v string) predicate.Trip {
 	return predicate.Trip(sql.FieldHasSuffix(FieldNumeric, v))
+}
+
+// NumericIsNil applies the IsNil predicate on the "numeric" field.
+func NumericIsNil() predicate.Trip {
+	return predicate.Trip(sql.FieldIsNull(FieldNumeric))
+}
+
+// NumericNotNil applies the NotNil predicate on the "numeric" field.
+func NumericNotNil() predicate.Trip {
+	return predicate.Trip(sql.FieldNotNull(FieldNumeric))
 }
 
 // NumericEqualFold applies the EqualFold predicate on the "numeric" field.
@@ -541,6 +561,16 @@ func StartedAtLTE(v time.Time) predicate.Trip {
 	return predicate.Trip(sql.FieldLTE(FieldStartedAt, v))
 }
 
+// StartedAtIsNil applies the IsNil predicate on the "started_at" field.
+func StartedAtIsNil() predicate.Trip {
+	return predicate.Trip(sql.FieldIsNull(FieldStartedAt))
+}
+
+// StartedAtNotNil applies the NotNil predicate on the "started_at" field.
+func StartedAtNotNil() predicate.Trip {
+	return predicate.Trip(sql.FieldNotNull(FieldStartedAt))
+}
+
 // CompletedAtEQ applies the EQ predicate on the "completed_at" field.
 func CompletedAtEQ(v time.Time) predicate.Trip {
 	return predicate.Trip(sql.FieldEQ(FieldCompletedAt, v))
@@ -579,6 +609,16 @@ func CompletedAtLT(v time.Time) predicate.Trip {
 // CompletedAtLTE applies the LTE predicate on the "completed_at" field.
 func CompletedAtLTE(v time.Time) predicate.Trip {
 	return predicate.Trip(sql.FieldLTE(FieldCompletedAt, v))
+}
+
+// CompletedAtIsNil applies the IsNil predicate on the "completed_at" field.
+func CompletedAtIsNil() predicate.Trip {
+	return predicate.Trip(sql.FieldIsNull(FieldCompletedAt))
+}
+
+// CompletedAtNotNil applies the NotNil predicate on the "completed_at" field.
+func CompletedAtNotNil() predicate.Trip {
+	return predicate.Trip(sql.FieldNotNull(FieldCompletedAt))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

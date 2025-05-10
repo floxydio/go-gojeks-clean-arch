@@ -21,5 +21,8 @@ type TripRating func(*sql.Selector)
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
 
+// UsersAdmin is the predicate function for usersadmin builders.
+type UsersAdmin func(*sql.Selector)
+
 // Wallet is the predicate function for wallet builders.
 type Wallet func(*sql.Selector)

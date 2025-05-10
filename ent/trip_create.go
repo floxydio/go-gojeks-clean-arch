@@ -81,9 +81,25 @@ func (tc *TripCreate) SetDistanceKm(f float64) *TripCreate {
 	return tc
 }
 
+// SetNillableDistanceKm sets the "distance_km" field if the given value is not nil.
+func (tc *TripCreate) SetNillableDistanceKm(f *float64) *TripCreate {
+	if f != nil {
+		tc.SetDistanceKm(*f)
+	}
+	return tc
+}
+
 // SetNumeric sets the "numeric" field.
 func (tc *TripCreate) SetNumeric(s string) *TripCreate {
 	tc.mutation.SetNumeric(s)
+	return tc
+}
+
+// SetNillableNumeric sets the "numeric" field if the given value is not nil.
+func (tc *TripCreate) SetNillableNumeric(s *string) *TripCreate {
+	if s != nil {
+		tc.SetNumeric(*s)
+	}
 	return tc
 }
 
@@ -121,9 +137,25 @@ func (tc *TripCreate) SetStartedAt(t time.Time) *TripCreate {
 	return tc
 }
 
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (tc *TripCreate) SetNillableStartedAt(t *time.Time) *TripCreate {
+	if t != nil {
+		tc.SetStartedAt(*t)
+	}
+	return tc
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tc *TripCreate) SetCompletedAt(t time.Time) *TripCreate {
 	tc.mutation.SetCompletedAt(t)
+	return tc
+}
+
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (tc *TripCreate) SetNillableCompletedAt(t *time.Time) *TripCreate {
+	if t != nil {
+		tc.SetCompletedAt(*t)
+	}
 	return tc
 }
 
@@ -255,23 +287,11 @@ func (tc *TripCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Trip.status": %w`, err)}
 		}
 	}
-	if _, ok := tc.mutation.DistanceKm(); !ok {
-		return &ValidationError{Name: "distance_km", err: errors.New(`ent: missing required field "Trip.distance_km"`)}
-	}
-	if _, ok := tc.mutation.Numeric(); !ok {
-		return &ValidationError{Name: "numeric", err: errors.New(`ent: missing required field "Trip.numeric"`)}
-	}
 	if _, ok := tc.mutation.IsPaid(); !ok {
 		return &ValidationError{Name: "is_paid", err: errors.New(`ent: missing required field "Trip.is_paid"`)}
 	}
 	if _, ok := tc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Trip.created_at"`)}
-	}
-	if _, ok := tc.mutation.StartedAt(); !ok {
-		return &ValidationError{Name: "started_at", err: errors.New(`ent: missing required field "Trip.started_at"`)}
-	}
-	if _, ok := tc.mutation.CompletedAt(); !ok {
-		return &ValidationError{Name: "completed_at", err: errors.New(`ent: missing required field "Trip.completed_at"`)}
 	}
 	if len(tc.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "Trip.user"`)}

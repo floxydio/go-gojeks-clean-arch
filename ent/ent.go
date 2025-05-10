@@ -11,6 +11,7 @@ import (
 	"gojeksrepo/ent/trip"
 	"gojeksrepo/ent/triprating"
 	"gojeksrepo/ent/user"
+	"gojeksrepo/ent/usersadmin"
 	"gojeksrepo/ent/wallet"
 	"reflect"
 	"sync"
@@ -83,6 +84,7 @@ func checkColumn(table, column string) error {
 			trip.Table:          trip.ValidColumn,
 			triprating.Table:    triprating.ValidColumn,
 			user.Table:          user.ValidColumn,
+			usersadmin.Table:    usersadmin.ValidColumn,
 			wallet.Table:        wallet.ValidColumn,
 		})
 	})

@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 	"gojeksrepo/config"
 	"gojeksrepo/internal/router"
+	"gojeksrepo/pkg"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -26,6 +28,8 @@ func main() {
 
 	// Call Router
 	echoCall := router.InitRouter()
+
+	go pkg.KafkaReadOrderCreated()
 
 	// Listen port
 	portRunner := os.Getenv("PORT_RUNNER")

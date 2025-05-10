@@ -2,10 +2,13 @@ package admin
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"gojeksrepo/ent"
 	"gojeksrepo/ent/driverprofile"
+	"gojeksrepo/ent/usersadmin"
 	"gojeksrepo/internal/admin/dto"
+	"gojeksrepo/pkg"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -39,5 +42,31 @@ func (r *Service) ApproveAdmin(form dto.ApprovalAdminForm, ctx context.Context) 
 	}
 
 	return nil
+}
 
+func (r *Service) FindExistUser(form dto.SignInAdmin, ctx context.Context) (*ent.UsersAdmin, error) {
+	data, err := r.db.UsersAdmin.Query().Where(usersadmin.Username(form.Username)).First(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+
+}
+
+func (r *Service) SignupAdmin(form dto.SignUpAdmin, ctx context.Context) error {
+	hash, errHash := pkg.HashPassword(form.Password)
+
+	if errHash != nil {
+		return errHash
+	}
+
+	_, err := r.db.UsersAdmin.Create().SetName(form.Name).SetUsername(form.Username).SetPassword(hash).Save(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

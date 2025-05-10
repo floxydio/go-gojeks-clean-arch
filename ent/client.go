@@ -16,6 +16,7 @@ import (
 	"gojeksrepo/ent/trip"
 	"gojeksrepo/ent/triprating"
 	"gojeksrepo/ent/user"
+	"gojeksrepo/ent/usersadmin"
 	"gojeksrepo/ent/wallet"
 
 	"entgo.io/ent"
@@ -40,6 +41,8 @@ type Client struct {
 	TripRating *TripRatingClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UsersAdmin is the client for interacting with the UsersAdmin builders.
+	UsersAdmin *UsersAdminClient
 	// Wallet is the client for interacting with the Wallet builders.
 	Wallet *WalletClient
 }
@@ -58,6 +61,7 @@ func (c *Client) init() {
 	c.Trip = NewTripClient(c.config)
 	c.TripRating = NewTripRatingClient(c.config)
 	c.User = NewUserClient(c.config)
+	c.UsersAdmin = NewUsersAdminClient(c.config)
 	c.Wallet = NewWalletClient(c.config)
 }
 
@@ -156,6 +160,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Trip:          NewTripClient(cfg),
 		TripRating:    NewTripRatingClient(cfg),
 		User:          NewUserClient(cfg),
+		UsersAdmin:    NewUsersAdminClient(cfg),
 		Wallet:        NewWalletClient(cfg),
 	}, nil
 }
@@ -181,6 +186,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Trip:          NewTripClient(cfg),
 		TripRating:    NewTripRatingClient(cfg),
 		User:          NewUserClient(cfg),
+		UsersAdmin:    NewUsersAdminClient(cfg),
 		Wallet:        NewWalletClient(cfg),
 	}, nil
 }
@@ -211,7 +217,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.DriverProfile, c.Payment, c.Trip, c.TripRating, c.User, c.Wallet,
+		c.DriverProfile, c.Payment, c.Trip, c.TripRating, c.User, c.UsersAdmin,
+		c.Wallet,
 	} {
 		n.Use(hooks...)
 	}
@@ -221,7 +228,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.DriverProfile, c.Payment, c.Trip, c.TripRating, c.User, c.Wallet,
+		c.DriverProfile, c.Payment, c.Trip, c.TripRating, c.User, c.UsersAdmin,
+		c.Wallet,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -240,6 +248,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.TripRating.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
+	case *UsersAdminMutation:
+		return c.UsersAdmin.mutate(ctx, m)
 	case *WalletMutation:
 		return c.Wallet.mutate(ctx, m)
 	default:
@@ -1184,6 +1194,139 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 	}
 }
 
+// UsersAdminClient is a client for the UsersAdmin schema.
+type UsersAdminClient struct {
+	config
+}
+
+// NewUsersAdminClient returns a client for the UsersAdmin from the given config.
+func NewUsersAdminClient(c config) *UsersAdminClient {
+	return &UsersAdminClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `usersadmin.Hooks(f(g(h())))`.
+func (c *UsersAdminClient) Use(hooks ...Hook) {
+	c.hooks.UsersAdmin = append(c.hooks.UsersAdmin, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `usersadmin.Intercept(f(g(h())))`.
+func (c *UsersAdminClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UsersAdmin = append(c.inters.UsersAdmin, interceptors...)
+}
+
+// Create returns a builder for creating a UsersAdmin entity.
+func (c *UsersAdminClient) Create() *UsersAdminCreate {
+	mutation := newUsersAdminMutation(c.config, OpCreate)
+	return &UsersAdminCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UsersAdmin entities.
+func (c *UsersAdminClient) CreateBulk(builders ...*UsersAdminCreate) *UsersAdminCreateBulk {
+	return &UsersAdminCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UsersAdminClient) MapCreateBulk(slice any, setFunc func(*UsersAdminCreate, int)) *UsersAdminCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UsersAdminCreateBulk{err: fmt.Errorf("calling to UsersAdminClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UsersAdminCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UsersAdminCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UsersAdmin.
+func (c *UsersAdminClient) Update() *UsersAdminUpdate {
+	mutation := newUsersAdminMutation(c.config, OpUpdate)
+	return &UsersAdminUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UsersAdminClient) UpdateOne(ua *UsersAdmin) *UsersAdminUpdateOne {
+	mutation := newUsersAdminMutation(c.config, OpUpdateOne, withUsersAdmin(ua))
+	return &UsersAdminUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UsersAdminClient) UpdateOneID(id uuid.UUID) *UsersAdminUpdateOne {
+	mutation := newUsersAdminMutation(c.config, OpUpdateOne, withUsersAdminID(id))
+	return &UsersAdminUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UsersAdmin.
+func (c *UsersAdminClient) Delete() *UsersAdminDelete {
+	mutation := newUsersAdminMutation(c.config, OpDelete)
+	return &UsersAdminDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UsersAdminClient) DeleteOne(ua *UsersAdmin) *UsersAdminDeleteOne {
+	return c.DeleteOneID(ua.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UsersAdminClient) DeleteOneID(id uuid.UUID) *UsersAdminDeleteOne {
+	builder := c.Delete().Where(usersadmin.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UsersAdminDeleteOne{builder}
+}
+
+// Query returns a query builder for UsersAdmin.
+func (c *UsersAdminClient) Query() *UsersAdminQuery {
+	return &UsersAdminQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUsersAdmin},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UsersAdmin entity by its id.
+func (c *UsersAdminClient) Get(ctx context.Context, id uuid.UUID) (*UsersAdmin, error) {
+	return c.Query().Where(usersadmin.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UsersAdminClient) GetX(ctx context.Context, id uuid.UUID) *UsersAdmin {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *UsersAdminClient) Hooks() []Hook {
+	return c.hooks.UsersAdmin
+}
+
+// Interceptors returns the client interceptors.
+func (c *UsersAdminClient) Interceptors() []Interceptor {
+	return c.inters.UsersAdmin
+}
+
+func (c *UsersAdminClient) mutate(ctx context.Context, m *UsersAdminMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UsersAdminCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UsersAdminUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UsersAdminUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UsersAdminDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UsersAdmin mutation op: %q", m.Op())
+	}
+}
+
 // WalletClient is a client for the Wallet schema.
 type WalletClient struct {
 	config
@@ -1336,9 +1479,10 @@ func (c *WalletClient) mutate(ctx context.Context, m *WalletMutation) (Value, er
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		DriverProfile, Payment, Trip, TripRating, User, Wallet []ent.Hook
+		DriverProfile, Payment, Trip, TripRating, User, UsersAdmin, Wallet []ent.Hook
 	}
 	inters struct {
-		DriverProfile, Payment, Trip, TripRating, User, Wallet []ent.Interceptor
+		DriverProfile, Payment, Trip, TripRating, User, UsersAdmin,
+		Wallet []ent.Interceptor
 	}
 )

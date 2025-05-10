@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"entgo.io/ent/schema/edge"
 	"time"
+
+	"entgo.io/ent/schema/edge"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -26,14 +27,14 @@ func (Trip) Fields() []ent.Field {
 		field.Float("drop_lat"),
 		field.Float("drop_long"),
 		field.Enum("status").Values("requested", "accepted", "ongoing", "completed", "cancelled"),
-		field.Float("distance_km"),
-		field.String("numeric"),
+		field.Float("distance_km").Optional(),
+		field.String("numeric").Optional(),
 		field.Bool("is_paid").Default(false),
 		field.Time("created_at").Default(time.Now()).Annotations(
 			entsql.Default("CURRENT_TIMESTAMP"),
 		),
-		field.Time("started_at"),
-		field.Time("completed_at"),
+		field.Time("started_at").Optional(),
+		field.Time("completed_at").Optional(),
 	}
 }
 

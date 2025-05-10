@@ -22,6 +22,8 @@ type Tx struct {
 	TripRating *TripRatingClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UsersAdmin is the client for interacting with the UsersAdmin builders.
+	UsersAdmin *UsersAdminClient
 	// Wallet is the client for interacting with the Wallet builders.
 	Wallet *WalletClient
 
@@ -160,6 +162,7 @@ func (tx *Tx) init() {
 	tx.Trip = NewTripClient(tx.config)
 	tx.TripRating = NewTripRatingClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UsersAdmin = NewUsersAdminClient(tx.config)
 	tx.Wallet = NewWalletClient(tx.config)
 }
 

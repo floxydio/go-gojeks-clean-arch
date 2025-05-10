@@ -186,6 +186,12 @@ func (tu *TripUpdate) AddDistanceKm(f float64) *TripUpdate {
 	return tu
 }
 
+// ClearDistanceKm clears the value of the "distance_km" field.
+func (tu *TripUpdate) ClearDistanceKm() *TripUpdate {
+	tu.mutation.ClearDistanceKm()
+	return tu
+}
+
 // SetNumeric sets the "numeric" field.
 func (tu *TripUpdate) SetNumeric(s string) *TripUpdate {
 	tu.mutation.SetNumeric(s)
@@ -197,6 +203,12 @@ func (tu *TripUpdate) SetNillableNumeric(s *string) *TripUpdate {
 	if s != nil {
 		tu.SetNumeric(*s)
 	}
+	return tu
+}
+
+// ClearNumeric clears the value of the "numeric" field.
+func (tu *TripUpdate) ClearNumeric() *TripUpdate {
+	tu.mutation.ClearNumeric()
 	return tu
 }
 
@@ -242,6 +254,12 @@ func (tu *TripUpdate) SetNillableStartedAt(t *time.Time) *TripUpdate {
 	return tu
 }
 
+// ClearStartedAt clears the value of the "started_at" field.
+func (tu *TripUpdate) ClearStartedAt() *TripUpdate {
+	tu.mutation.ClearStartedAt()
+	return tu
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tu *TripUpdate) SetCompletedAt(t time.Time) *TripUpdate {
 	tu.mutation.SetCompletedAt(t)
@@ -253,6 +271,12 @@ func (tu *TripUpdate) SetNillableCompletedAt(t *time.Time) *TripUpdate {
 	if t != nil {
 		tu.SetCompletedAt(*t)
 	}
+	return tu
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (tu *TripUpdate) ClearCompletedAt() *TripUpdate {
+	tu.mutation.ClearCompletedAt()
 	return tu
 }
 
@@ -440,8 +464,14 @@ func (tu *TripUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tu.mutation.AddedDistanceKm(); ok {
 		_spec.AddField(trip.FieldDistanceKm, field.TypeFloat64, value)
 	}
+	if tu.mutation.DistanceKmCleared() {
+		_spec.ClearField(trip.FieldDistanceKm, field.TypeFloat64)
+	}
 	if value, ok := tu.mutation.Numeric(); ok {
 		_spec.SetField(trip.FieldNumeric, field.TypeString, value)
+	}
+	if tu.mutation.NumericCleared() {
+		_spec.ClearField(trip.FieldNumeric, field.TypeString)
 	}
 	if value, ok := tu.mutation.IsPaid(); ok {
 		_spec.SetField(trip.FieldIsPaid, field.TypeBool, value)
@@ -452,8 +482,14 @@ func (tu *TripUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tu.mutation.StartedAt(); ok {
 		_spec.SetField(trip.FieldStartedAt, field.TypeTime, value)
 	}
+	if tu.mutation.StartedAtCleared() {
+		_spec.ClearField(trip.FieldStartedAt, field.TypeTime)
+	}
 	if value, ok := tu.mutation.CompletedAt(); ok {
 		_spec.SetField(trip.FieldCompletedAt, field.TypeTime, value)
+	}
+	if tu.mutation.CompletedAtCleared() {
+		_spec.ClearField(trip.FieldCompletedAt, field.TypeTime)
 	}
 	if tu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -776,6 +812,12 @@ func (tuo *TripUpdateOne) AddDistanceKm(f float64) *TripUpdateOne {
 	return tuo
 }
 
+// ClearDistanceKm clears the value of the "distance_km" field.
+func (tuo *TripUpdateOne) ClearDistanceKm() *TripUpdateOne {
+	tuo.mutation.ClearDistanceKm()
+	return tuo
+}
+
 // SetNumeric sets the "numeric" field.
 func (tuo *TripUpdateOne) SetNumeric(s string) *TripUpdateOne {
 	tuo.mutation.SetNumeric(s)
@@ -787,6 +829,12 @@ func (tuo *TripUpdateOne) SetNillableNumeric(s *string) *TripUpdateOne {
 	if s != nil {
 		tuo.SetNumeric(*s)
 	}
+	return tuo
+}
+
+// ClearNumeric clears the value of the "numeric" field.
+func (tuo *TripUpdateOne) ClearNumeric() *TripUpdateOne {
+	tuo.mutation.ClearNumeric()
 	return tuo
 }
 
@@ -832,6 +880,12 @@ func (tuo *TripUpdateOne) SetNillableStartedAt(t *time.Time) *TripUpdateOne {
 	return tuo
 }
 
+// ClearStartedAt clears the value of the "started_at" field.
+func (tuo *TripUpdateOne) ClearStartedAt() *TripUpdateOne {
+	tuo.mutation.ClearStartedAt()
+	return tuo
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tuo *TripUpdateOne) SetCompletedAt(t time.Time) *TripUpdateOne {
 	tuo.mutation.SetCompletedAt(t)
@@ -843,6 +897,12 @@ func (tuo *TripUpdateOne) SetNillableCompletedAt(t *time.Time) *TripUpdateOne {
 	if t != nil {
 		tuo.SetCompletedAt(*t)
 	}
+	return tuo
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (tuo *TripUpdateOne) ClearCompletedAt() *TripUpdateOne {
+	tuo.mutation.ClearCompletedAt()
 	return tuo
 }
 
@@ -1060,8 +1120,14 @@ func (tuo *TripUpdateOne) sqlSave(ctx context.Context) (_node *Trip, err error) 
 	if value, ok := tuo.mutation.AddedDistanceKm(); ok {
 		_spec.AddField(trip.FieldDistanceKm, field.TypeFloat64, value)
 	}
+	if tuo.mutation.DistanceKmCleared() {
+		_spec.ClearField(trip.FieldDistanceKm, field.TypeFloat64)
+	}
 	if value, ok := tuo.mutation.Numeric(); ok {
 		_spec.SetField(trip.FieldNumeric, field.TypeString, value)
+	}
+	if tuo.mutation.NumericCleared() {
+		_spec.ClearField(trip.FieldNumeric, field.TypeString)
 	}
 	if value, ok := tuo.mutation.IsPaid(); ok {
 		_spec.SetField(trip.FieldIsPaid, field.TypeBool, value)
@@ -1072,8 +1138,14 @@ func (tuo *TripUpdateOne) sqlSave(ctx context.Context) (_node *Trip, err error) 
 	if value, ok := tuo.mutation.StartedAt(); ok {
 		_spec.SetField(trip.FieldStartedAt, field.TypeTime, value)
 	}
+	if tuo.mutation.StartedAtCleared() {
+		_spec.ClearField(trip.FieldStartedAt, field.TypeTime)
+	}
 	if value, ok := tuo.mutation.CompletedAt(); ok {
 		_spec.SetField(trip.FieldCompletedAt, field.TypeTime, value)
+	}
+	if tuo.mutation.CompletedAtCleared() {
+		_spec.ClearField(trip.FieldCompletedAt, field.TypeTime)
 	}
 	if tuo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

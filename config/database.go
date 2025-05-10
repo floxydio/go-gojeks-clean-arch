@@ -16,9 +16,9 @@ func DatabaseInit() {
 		if err != nil {
 			log.Fatalf("Database not connected %v", err)
 		}
-		//if err := client.Schema.Create(context.Background()); err != nil {
-		//	log.Fatalf("failed creating schema resources: %v", err)
-		//}
+		// if err := client.Schema.Create(context.Background()); err != nil {
+		// 	log.Fatalf("failed creating schema resources: %v", err)
+		// }
 		dbClient = client
 	})
 }

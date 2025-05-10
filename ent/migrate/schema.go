@@ -72,12 +72,12 @@ var (
 		{Name: "drop_lat", Type: field.TypeFloat64},
 		{Name: "drop_long", Type: field.TypeFloat64},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"requested", "accepted", "ongoing", "completed", "cancelled"}},
-		{Name: "distance_km", Type: field.TypeFloat64},
-		{Name: "numeric", Type: field.TypeString},
+		{Name: "distance_km", Type: field.TypeFloat64, Nullable: true},
+		{Name: "numeric", Type: field.TypeString, Nullable: true},
 		{Name: "is_paid", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
-		{Name: "started_at", Type: field.TypeTime},
-		{Name: "completed_at", Type: field.TypeTime},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "driver_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "user_id", Type: field.TypeUUID},
 	}
@@ -154,6 +154,20 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
+	// UsersAdminsColumns holds the columns for the "users_admins" table.
+	UsersAdminsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString},
+		{Name: "username", Type: field.TypeString, Unique: true},
+		{Name: "password", Type: field.TypeString},
+		{Name: "status_admin", Type: field.TypeInt, Default: 0},
+	}
+	// UsersAdminsTable holds the schema information for the "users_admins" table.
+	UsersAdminsTable = &schema.Table{
+		Name:       "users_admins",
+		Columns:    UsersAdminsColumns,
+		PrimaryKey: []*schema.Column{UsersAdminsColumns[0]},
+	}
 	// WalletsColumns holds the columns for the "wallets" table.
 	WalletsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -181,6 +195,7 @@ var (
 		TripsTable,
 		TripRatingsTable,
 		UsersTable,
+		UsersAdminsTable,
 		WalletsTable,
 	}
 )

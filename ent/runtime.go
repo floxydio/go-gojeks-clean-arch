@@ -9,6 +9,7 @@ import (
 	"gojeksrepo/ent/trip"
 	"gojeksrepo/ent/triprating"
 	"gojeksrepo/ent/user"
+	"gojeksrepo/ent/usersadmin"
 	"gojeksrepo/ent/wallet"
 	"time"
 
@@ -97,6 +98,28 @@ func init() {
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.
 	user.DefaultID = userDescID.Default.(func() uuid.UUID)
+	usersadminFields := schema.UsersAdmin{}.Fields()
+	_ = usersadminFields
+	// usersadminDescName is the schema descriptor for name field.
+	usersadminDescName := usersadminFields[1].Descriptor()
+	// usersadmin.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	usersadmin.NameValidator = usersadminDescName.Validators[0].(func(string) error)
+	// usersadminDescUsername is the schema descriptor for username field.
+	usersadminDescUsername := usersadminFields[2].Descriptor()
+	// usersadmin.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	usersadmin.UsernameValidator = usersadminDescUsername.Validators[0].(func(string) error)
+	// usersadminDescPassword is the schema descriptor for password field.
+	usersadminDescPassword := usersadminFields[3].Descriptor()
+	// usersadmin.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
+	usersadmin.PasswordValidator = usersadminDescPassword.Validators[0].(func(string) error)
+	// usersadminDescStatusAdmin is the schema descriptor for status_admin field.
+	usersadminDescStatusAdmin := usersadminFields[4].Descriptor()
+	// usersadmin.DefaultStatusAdmin holds the default value on creation for the status_admin field.
+	usersadmin.DefaultStatusAdmin = usersadminDescStatusAdmin.Default.(int)
+	// usersadminDescID is the schema descriptor for id field.
+	usersadminDescID := usersadminFields[0].Descriptor()
+	// usersadmin.DefaultID holds the default value on creation for the id field.
+	usersadmin.DefaultID = usersadminDescID.Default.(func() uuid.UUID)
 	walletFields := schema.Wallet{}.Fields()
 	_ = walletFields
 	// walletDescID is the schema descriptor for id field.
