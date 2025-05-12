@@ -188,6 +188,21 @@ func (uc *UserCreate) AddUserDriver(d ...*DriverProfile) *UserCreate {
 	return uc.AddUserDriverIDs(ids...)
 }
 
+// AddDriverTripIDs adds the "driver_trips" edge to the Trip entity by IDs.
+func (uc *UserCreate) AddDriverTripIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddDriverTripIDs(ids...)
+	return uc
+}
+
+// AddDriverTrips adds the "driver_trips" edges to the Trip entity.
+func (uc *UserCreate) AddDriverTrips(t ...*Trip) *UserCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return uc.AddDriverTripIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -437,6 +452,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(driverprofile.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.DriverTripsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DriverTripsTable,
+			Columns: []string{user.DriverTripsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

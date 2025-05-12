@@ -6,7 +6,6 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"gojeksrepo/ent/driverprofile"
 	"gojeksrepo/ent/payment"
 	"gojeksrepo/ent/predicate"
 	"gojeksrepo/ent/trip"
@@ -29,9 +28,10 @@ type TripQuery struct {
 	inters      []Interceptor
 	predicates  []predicate.Trip
 	withUser    *UserQuery
-	withDriver  *DriverProfileQuery
+	withDriver  *UserQuery
 	withPayment *PaymentQuery
 	withRatings *TripRatingQuery
+	withFKs     bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -91,8 +91,8 @@ func (tq *TripQuery) QueryUser() *UserQuery {
 }
 
 // QueryDriver chains the current query on the "driver" edge.
-func (tq *TripQuery) QueryDriver() *DriverProfileQuery {
-	query := (&DriverProfileClient{config: tq.config}).Query()
+func (tq *TripQuery) QueryDriver() *UserQuery {
+	query := (&UserClient{config: tq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -103,7 +103,7 @@ func (tq *TripQuery) QueryDriver() *DriverProfileQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(trip.Table, trip.FieldID, selector),
-			sqlgraph.To(driverprofile.Table, driverprofile.FieldID),
+			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, trip.DriverTable, trip.DriverColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
@@ -371,8 +371,8 @@ func (tq *TripQuery) WithUser(opts ...func(*UserQuery)) *TripQuery {
 
 // WithDriver tells the query-builder to eager-load the nodes that are connected to
 // the "driver" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TripQuery) WithDriver(opts ...func(*DriverProfileQuery)) *TripQuery {
-	query := (&DriverProfileClient{config: tq.config}).Query()
+func (tq *TripQuery) WithDriver(opts ...func(*UserQuery)) *TripQuery {
+	query := (&UserClient{config: tq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -479,6 +479,7 @@ func (tq *TripQuery) prepareQuery(ctx context.Context) error {
 func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, error) {
 	var (
 		nodes       = []*Trip{}
+		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
 		loadedTypes = [4]bool{
 			tq.withUser != nil,
@@ -487,6 +488,9 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 			tq.withRatings != nil,
 		}
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, trip.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Trip).scanValues(nil, columns)
 	}
@@ -513,7 +517,7 @@ func (tq *TripQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Trip, e
 	}
 	if query := tq.withDriver; query != nil {
 		if err := tq.loadDriver(ctx, query, nodes, nil,
-			func(n *Trip, e *DriverProfile) { n.Edges.Driver = e }); err != nil {
+			func(n *Trip, e *User) { n.Edges.Driver = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -563,7 +567,7 @@ func (tq *TripQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Tr
 	}
 	return nil
 }
-func (tq *TripQuery) loadDriver(ctx context.Context, query *DriverProfileQuery, nodes []*Trip, init func(*Trip), assign func(*Trip, *DriverProfile)) error {
+func (tq *TripQuery) loadDriver(ctx context.Context, query *UserQuery, nodes []*Trip, init func(*Trip), assign func(*Trip, *User)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Trip)
 	for i := range nodes {
@@ -579,7 +583,7 @@ func (tq *TripQuery) loadDriver(ctx context.Context, query *DriverProfileQuery, 
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(driverprofile.IDIn(ids...))
+	query.Where(user.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err

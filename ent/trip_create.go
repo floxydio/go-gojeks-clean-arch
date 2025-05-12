@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gojeksrepo/ent/driverprofile"
 	"gojeksrepo/ent/payment"
 	"gojeksrepo/ent/trip"
 	"gojeksrepo/ent/triprating"
@@ -178,9 +177,9 @@ func (tc *TripCreate) SetUser(u *User) *TripCreate {
 	return tc.SetUserID(u.ID)
 }
 
-// SetDriver sets the "driver" edge to the DriverProfile entity.
-func (tc *TripCreate) SetDriver(d *DriverProfile) *TripCreate {
-	return tc.SetDriverID(d.ID)
+// SetDriver sets the "driver" edge to the User entity.
+func (tc *TripCreate) SetDriver(u *User) *TripCreate {
+	return tc.SetDriverID(u.ID)
 }
 
 // AddPaymentIDs adds the "payment" edge to the Payment entity by IDs.
@@ -400,7 +399,7 @@ func (tc *TripCreate) createSpec() (*Trip, *sqlgraph.CreateSpec) {
 			Columns: []string{trip.DriverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(driverprofile.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

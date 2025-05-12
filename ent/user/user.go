@@ -42,6 +42,8 @@ const (
 	EdgeReceivedRatings = "received_ratings"
 	// EdgeUserDriver holds the string denoting the user_driver edge name in mutations.
 	EdgeUserDriver = "user_driver"
+	// EdgeDriverTrips holds the string denoting the driver_trips edge name in mutations.
+	EdgeDriverTrips = "driver_trips"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// UserTripsTable is the table that holds the user_trips relation/edge.
@@ -86,6 +88,13 @@ const (
 	UserDriverInverseTable = "driver_profiles"
 	// UserDriverColumn is the table column denoting the user_driver relation/edge.
 	UserDriverColumn = "user_id"
+	// DriverTripsTable is the table that holds the driver_trips relation/edge.
+	DriverTripsTable = "trips"
+	// DriverTripsInverseTable is the table name for the Trip entity.
+	// It exists in this package in order to avoid circular dependency with the "trip" package.
+	DriverTripsInverseTable = "trips"
+	// DriverTripsColumn is the table column denoting the driver_trips relation/edge.
+	DriverTripsColumn = "driver_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -277,6 +286,20 @@ func ByUserDriver(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserDriverStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByDriverTripsCount orders the results by driver_trips count.
+func ByDriverTripsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDriverTripsStep(), opts...)
+	}
+}
+
+// ByDriverTrips orders the results by driver_trips terms.
+func ByDriverTrips(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDriverTripsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUserTripsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -317,5 +340,12 @@ func newUserDriverStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserDriverInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserDriverTable, UserDriverColumn),
+	)
+}
+func newDriverTripsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DriverTripsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DriverTripsTable, DriverTripsColumn),
 	)
 }

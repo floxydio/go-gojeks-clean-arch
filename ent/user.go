@@ -52,9 +52,11 @@ type UserEdges struct {
 	ReceivedRatings []*TripRating `json:"received_ratings,omitempty"`
 	// UserDriver holds the value of the user_driver edge.
 	UserDriver []*DriverProfile `json:"user_driver,omitempty"`
+	// DriverTrips holds the value of the driver_trips edge.
+	DriverTrips []*Trip `json:"driver_trips,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [7]bool
 }
 
 // UserTripsOrErr returns the UserTrips value or an error if the edge
@@ -109,6 +111,15 @@ func (e UserEdges) UserDriverOrErr() ([]*DriverProfile, error) {
 		return e.UserDriver, nil
 	}
 	return nil, &NotLoadedError{edge: "user_driver"}
+}
+
+// DriverTripsOrErr returns the DriverTrips value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) DriverTripsOrErr() ([]*Trip, error) {
+	if e.loadedTypes[6] {
+		return e.DriverTrips, nil
+	}
+	return nil, &NotLoadedError{edge: "driver_trips"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -228,6 +239,11 @@ func (u *User) QueryReceivedRatings() *TripRatingQuery {
 // QueryUserDriver queries the "user_driver" edge of the User entity.
 func (u *User) QueryUserDriver() *DriverProfileQuery {
 	return NewUserClient(u.config).QueryUserDriver(u)
+}
+
+// QueryDriverTrips queries the "driver_trips" edge of the User entity.
+func (u *User) QueryDriverTrips() *TripQuery {
+	return NewUserClient(u.config).QueryDriverTrips(u)
 }
 
 // Update returns a builder for updating this User.

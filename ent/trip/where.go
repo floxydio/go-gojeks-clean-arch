@@ -656,7 +656,7 @@ func HasDriver() predicate.Trip {
 }
 
 // HasDriverWith applies the HasEdge predicate on the "driver" edge with a given conditions (other predicates).
-func HasDriverWith(preds ...predicate.DriverProfile) predicate.Trip {
+func HasDriverWith(preds ...predicate.User) predicate.Trip {
 	return predicate.Trip(func(s *sql.Selector) {
 		step := newDriverStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {

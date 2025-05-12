@@ -16,10 +16,10 @@ import (
 
 type ClientOrderService struct {
 	dbClient     *ent.Client
-	kafkaService *kafka.Conn
+	kafkaService *kafka.Writer
 }
 
-func NewServiceClientOrderService(db *ent.Client, kafka *kafka.Conn) *ClientOrderService {
+func NewServiceClientOrderService(db *ent.Client, kafka *kafka.Writer) *ClientOrderService {
 	return &ClientOrderService{
 		dbClient:     db,
 		kafkaService: kafka,
@@ -67,7 +67,7 @@ func (repo *ClientOrderService) CreateOrder(formData dto.TripRequest, ctx contex
 
 	jsonKafkaModel, _ := json.Marshal(modelToKafka)
 
-	_, errKafka := repo.kafkaService.WriteMessages(
+	errKafka := repo.kafkaService.WriteMessages(ctx,
 		kafka.Message{Key: []byte(modelToKafka.OrderId.String()), Value: []byte((jsonKafkaModel))},
 	)
 
@@ -76,7 +76,7 @@ func (repo *ClientOrderService) CreateOrder(formData dto.TripRequest, ctx contex
 	}
 
 	pkg.SendToUser(formData.UserID, "Order berhasil dibuat. Menunggu driver...")
+	pkg.SendDriver(fmt.Sprintf("Ada orderan masuk %s", data.ID.String()))
 
 	return data, nil
-
 }

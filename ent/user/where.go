@@ -554,6 +554,29 @@ func HasUserDriverWith(preds ...predicate.DriverProfile) predicate.User {
 	})
 }
 
+// HasDriverTrips applies the HasEdge predicate on the "driver_trips" edge.
+func HasDriverTrips() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DriverTripsTable, DriverTripsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDriverTripsWith applies the HasEdge predicate on the "driver_trips" edge with a given conditions (other predicates).
+func HasDriverTripsWith(preds ...predicate.Trip) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newDriverTripsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

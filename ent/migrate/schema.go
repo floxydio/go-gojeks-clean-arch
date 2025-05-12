@@ -78,8 +78,9 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "started_at", Type: field.TypeTime, Nullable: true},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
-		{Name: "driver_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "driver_profile_trips_driver", Type: field.TypeUUID, Nullable: true},
 		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "driver_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// TripsTable holds the schema information for the "trips" table.
 	TripsTable = &schema.Table{
@@ -98,6 +99,12 @@ var (
 				Columns:    []*schema.Column{TripsColumns[13]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "trips_users_driver_trips",
+				Columns:    []*schema.Column{TripsColumns[14]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 	}
@@ -206,6 +213,7 @@ func init() {
 	PaymentsTable.ForeignKeys[1].RefTable = UsersTable
 	TripsTable.ForeignKeys[0].RefTable = DriverProfilesTable
 	TripsTable.ForeignKeys[1].RefTable = UsersTable
+	TripsTable.ForeignKeys[2].RefTable = UsersTable
 	TripRatingsTable.ForeignKeys[0].RefTable = TripsTable
 	TripRatingsTable.ForeignKeys[1].RefTable = UsersTable
 	TripRatingsTable.ForeignKeys[2].RefTable = UsersTable

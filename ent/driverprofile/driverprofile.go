@@ -50,7 +50,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "trip" package.
 	TripsDriverInverseTable = "trips"
 	// TripsDriverColumn is the table column denoting the trips_driver relation/edge.
-	TripsDriverColumn = "driver_id"
+	TripsDriverColumn = "driver_profile_trips_driver"
 )
 
 // Columns holds all SQL columns for driverprofile fields.

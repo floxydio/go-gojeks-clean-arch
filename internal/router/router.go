@@ -5,6 +5,7 @@ import (
 	"gojeksrepo/internal/admin"
 	"gojeksrepo/internal/auth"
 	clientorder "gojeksrepo/internal/client/client_order"
+	"gojeksrepo/internal/driver/pickup"
 	"gojeksrepo/pkg"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +13,8 @@ import (
 
 func InitRouter() *echo.Echo {
 	db := config.GetDB()
-	kafkaService := pkg.KafkaConnector()
+	kafkaService := pkg.KafkaConnector("order-created")
+	kafkaDriverAssignedService := pkg.KafkaConnector("order-assigned")
 
 	echoService := echo.New()
 
@@ -24,6 +26,9 @@ func InitRouter() *echo.Echo {
 
 	clientorderRouter := clientorder.ClientOrderRoutes(db, kafkaService)
 	clientorderRouter.Register(echoService.Group("/trx"))
+
+	pickupRouter := pickup.PickupInitRouter(db, kafkaDriverAssignedService)
+	pickupRouter.RegisterPickupRouter(echoService.Group("/pick"))
 
 	return echoService
 }

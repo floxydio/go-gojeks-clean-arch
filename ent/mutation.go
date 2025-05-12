@@ -2542,13 +2542,13 @@ func (m *TripMutation) ResetUser() {
 	m.cleareduser = false
 }
 
-// ClearDriver clears the "driver" edge to the DriverProfile entity.
+// ClearDriver clears the "driver" edge to the User entity.
 func (m *TripMutation) ClearDriver() {
 	m.cleared_driver = true
 	m.clearedFields[trip.FieldDriverID] = struct{}{}
 }
 
-// DriverCleared reports if the "driver" edge to the DriverProfile entity was cleared.
+// DriverCleared reports if the "driver" edge to the User entity was cleared.
 func (m *TripMutation) DriverCleared() bool {
 	return m.DriverIDCleared() || m.cleared_driver
 }
@@ -4070,6 +4070,9 @@ type UserMutation struct {
 	user_driver             map[uuid.UUID]struct{}
 	removeduser_driver      map[uuid.UUID]struct{}
 	cleareduser_driver      bool
+	driver_trips            map[uuid.UUID]struct{}
+	removeddriver_trips     map[uuid.UUID]struct{}
+	cleareddriver_trips     bool
 	done                    bool
 	oldValue                func(context.Context) (*User, error)
 	predicates              []predicate.User
@@ -4755,6 +4758,60 @@ func (m *UserMutation) ResetUserDriver() {
 	m.removeduser_driver = nil
 }
 
+// AddDriverTripIDs adds the "driver_trips" edge to the Trip entity by ids.
+func (m *UserMutation) AddDriverTripIDs(ids ...uuid.UUID) {
+	if m.driver_trips == nil {
+		m.driver_trips = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.driver_trips[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDriverTrips clears the "driver_trips" edge to the Trip entity.
+func (m *UserMutation) ClearDriverTrips() {
+	m.cleareddriver_trips = true
+}
+
+// DriverTripsCleared reports if the "driver_trips" edge to the Trip entity was cleared.
+func (m *UserMutation) DriverTripsCleared() bool {
+	return m.cleareddriver_trips
+}
+
+// RemoveDriverTripIDs removes the "driver_trips" edge to the Trip entity by IDs.
+func (m *UserMutation) RemoveDriverTripIDs(ids ...uuid.UUID) {
+	if m.removeddriver_trips == nil {
+		m.removeddriver_trips = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.driver_trips, ids[i])
+		m.removeddriver_trips[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDriverTrips returns the removed IDs of the "driver_trips" edge to the Trip entity.
+func (m *UserMutation) RemovedDriverTripsIDs() (ids []uuid.UUID) {
+	for id := range m.removeddriver_trips {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DriverTripsIDs returns the "driver_trips" edge IDs in the mutation.
+func (m *UserMutation) DriverTripsIDs() (ids []uuid.UUID) {
+	for id := range m.driver_trips {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDriverTrips resets all changes to the "driver_trips" edge.
+func (m *UserMutation) ResetDriverTrips() {
+	m.driver_trips = nil
+	m.cleareddriver_trips = false
+	m.removeddriver_trips = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -4990,7 +5047,7 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.user_trips != nil {
 		edges = append(edges, user.EdgeUserTrips)
 	}
@@ -5008,6 +5065,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.user_driver != nil {
 		edges = append(edges, user.EdgeUserDriver)
+	}
+	if m.driver_trips != nil {
+		edges = append(edges, user.EdgeDriverTrips)
 	}
 	return edges
 }
@@ -5052,13 +5112,19 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeDriverTrips:
+		ids := make([]ent.Value, 0, len(m.driver_trips))
+		for id := range m.driver_trips {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.removeduser_trips != nil {
 		edges = append(edges, user.EdgeUserTrips)
 	}
@@ -5076,6 +5142,9 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removeduser_driver != nil {
 		edges = append(edges, user.EdgeUserDriver)
+	}
+	if m.removeddriver_trips != nil {
+		edges = append(edges, user.EdgeDriverTrips)
 	}
 	return edges
 }
@@ -5120,13 +5189,19 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeDriverTrips:
+		ids := make([]ent.Value, 0, len(m.removeddriver_trips))
+		for id := range m.removeddriver_trips {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.cleareduser_trips {
 		edges = append(edges, user.EdgeUserTrips)
 	}
@@ -5144,6 +5219,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.cleareduser_driver {
 		edges = append(edges, user.EdgeUserDriver)
+	}
+	if m.cleareddriver_trips {
+		edges = append(edges, user.EdgeDriverTrips)
 	}
 	return edges
 }
@@ -5164,6 +5242,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedreceived_ratings
 	case user.EdgeUserDriver:
 		return m.cleareduser_driver
+	case user.EdgeDriverTrips:
+		return m.cleareddriver_trips
 	}
 	return false
 }
@@ -5197,6 +5277,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeUserDriver:
 		m.ResetUserDriver()
+		return nil
+	case user.EdgeDriverTrips:
+		m.ResetDriverTrips()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

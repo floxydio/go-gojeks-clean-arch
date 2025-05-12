@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"entgo.io/ent/schema/edge"
 	"time"
+
+	"entgo.io/ent/schema/edge"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -40,5 +41,6 @@ func (User) Edges() []ent.Edge {
 		edge.To("given_ratings", TripRating.Type),
 		edge.To("received_ratings", TripRating.Type),
 		edge.To("user_driver", DriverProfile.Type),
+		edge.To("driver_trips", Trip.Type),
 	}
 }

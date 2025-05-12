@@ -712,13 +712,13 @@ func (c *TripClient) QueryUser(t *Trip) *UserQuery {
 }
 
 // QueryDriver queries the driver edge of a Trip.
-func (c *TripClient) QueryDriver(t *Trip) *DriverProfileQuery {
-	query := (&DriverProfileClient{config: c.config}).Query()
+func (c *TripClient) QueryDriver(t *Trip) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := t.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(trip.Table, trip.FieldID, id),
-			sqlgraph.To(driverprofile.Table, driverprofile.FieldID),
+			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, trip.DriverTable, trip.DriverColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
@@ -1162,6 +1162,22 @@ func (c *UserClient) QueryUserDriver(u *User) *DriverProfileQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(driverprofile.Table, driverprofile.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.UserDriverTable, user.UserDriverColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDriverTrips queries the driver_trips edge of a User.
+func (c *UserClient) QueryDriverTrips(u *User) *TripQuery {
+	query := (&TripClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(trip.Table, trip.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.DriverTripsTable, user.DriverTripsColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

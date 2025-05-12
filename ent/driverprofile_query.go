@@ -486,9 +486,7 @@ func (dpq *DriverProfileQuery) loadTripsDriver(ctx context.Context, query *TripQ
 			init(nodes[i])
 		}
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(trip.FieldDriverID)
-	}
+	query.withFKs = true
 	query.Where(predicate.Trip(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(driverprofile.TripsDriverColumn), fks...))
 	}))
@@ -497,13 +495,13 @@ func (dpq *DriverProfileQuery) loadTripsDriver(ctx context.Context, query *TripQ
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.DriverID
+		fk := n.driver_profile_trips_driver
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "driver_id" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "driver_profile_trips_driver" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "driver_id" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "driver_profile_trips_driver" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

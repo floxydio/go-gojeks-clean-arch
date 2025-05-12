@@ -8,22 +8,31 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-var onceDo sync.Once
-var kafkaClient *kafka.Conn
+// var onceDo sync.Once
+// var kafkaClient *kafka.Writer
+// var kafkaClientDriver *kafka.Conn
 
-func KafkaConnector() *kafka.Conn {
-	onceDo.Do(func() {
-		conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", "order-created", 0)
+var (
+	kafkaWriters = map[string]*kafka.Writer{}
+	kafkaMu      sync.Mutex
+)
 
-		if err != nil {
-			panic("err when connect kafka")
-		}
+func KafkaConnector(topic string) *kafka.Writer {
+	kafkaMu.Lock()
+	defer kafkaMu.Unlock()
 
-		fmt.Print("Kafka is initialized :)")
-		kafkaClient = conn
+	if w, ok := kafkaWriters[topic]; ok {
+		return w
+	}
 
-	})
-	return kafkaClient
+	writer := &kafka.Writer{
+		Addr:     kafka.TCP("localhost:9092"),
+		Topic:    topic,
+		Balancer: &kafka.LeastBytes{},
+	}
+
+	kafkaWriters[topic] = writer
+	return writer
 }
 
 func KafkaReadOrderCreated() {
@@ -39,7 +48,23 @@ func KafkaReadOrderCreated() {
 		if err != nil {
 			continue
 		}
-		fmt.Printf("message=%s\n", string(m.Value))
+		fmt.Printf("msg_order=%s\n", string(m.Value))
 	}
+}
 
+func KafkaReadAssign() {
+	kfkCnsmr := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:     []string{"localhost:9092"},
+		Topic:       "order-assigned",
+		StartOffset: kafka.FirstOffset,
+		MaxBytes:    10e6,
+	})
+
+	for {
+		m, err := kfkCnsmr.ReadMessage(context.Background())
+		if err != nil {
+			continue
+		}
+		fmt.Printf("msg_assign=%s\n", string(m.Value))
+	}
 }

@@ -4,7 +4,6 @@ package ent
 
 import (
 	"fmt"
-	"gojeksrepo/ent/driverprofile"
 	"gojeksrepo/ent/trip"
 	"gojeksrepo/ent/user"
 	"strings"
@@ -48,8 +47,9 @@ type Trip struct {
 	CompletedAt time.Time `json:"completed_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TripQuery when eager-loading is set.
-	Edges        TripEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges                       TripEdges `json:"edges"`
+	driver_profile_trips_driver *uuid.UUID
+	selectValues                sql.SelectValues
 }
 
 // TripEdges holds the relations/edges for other nodes in the graph.
@@ -57,7 +57,7 @@ type TripEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
 	// Driver holds the value of the driver edge.
-	Driver *DriverProfile `json:"driver,omitempty"`
+	Driver *User `json:"driver,omitempty"`
 	// Payment holds the value of the payment edge.
 	Payment []*Payment `json:"payment,omitempty"`
 	// Ratings holds the value of the ratings edge.
@@ -80,11 +80,11 @@ func (e TripEdges) UserOrErr() (*User, error) {
 
 // DriverOrErr returns the Driver value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e TripEdges) DriverOrErr() (*DriverProfile, error) {
+func (e TripEdges) DriverOrErr() (*User, error) {
 	if e.Driver != nil {
 		return e.Driver, nil
 	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: driverprofile.Label}
+		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "driver"}
 }
@@ -124,6 +124,8 @@ func (*Trip) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case trip.FieldID, trip.FieldUserID:
 			values[i] = new(uuid.UUID)
+		case trip.ForeignKeys[0]: // driver_profile_trips_driver
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -224,6 +226,13 @@ func (t *Trip) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				t.CompletedAt = value.Time
 			}
+		case trip.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field driver_profile_trips_driver", values[i])
+			} else if value.Valid {
+				t.driver_profile_trips_driver = new(uuid.UUID)
+				*t.driver_profile_trips_driver = *value.S.(*uuid.UUID)
+			}
 		default:
 			t.selectValues.Set(columns[i], values[i])
 		}
@@ -243,7 +252,7 @@ func (t *Trip) QueryUser() *UserQuery {
 }
 
 // QueryDriver queries the "driver" edge of the Trip entity.
-func (t *Trip) QueryDriver() *DriverProfileQuery {
+func (t *Trip) QueryDriver() *UserQuery {
 	return NewTripClient(t.config).QueryDriver(t)
 }
 

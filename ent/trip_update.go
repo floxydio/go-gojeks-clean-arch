@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gojeksrepo/ent/driverprofile"
 	"gojeksrepo/ent/payment"
 	"gojeksrepo/ent/predicate"
 	"gojeksrepo/ent/trip"
@@ -285,9 +284,9 @@ func (tu *TripUpdate) SetUser(u *User) *TripUpdate {
 	return tu.SetUserID(u.ID)
 }
 
-// SetDriver sets the "driver" edge to the DriverProfile entity.
-func (tu *TripUpdate) SetDriver(d *DriverProfile) *TripUpdate {
-	return tu.SetDriverID(d.ID)
+// SetDriver sets the "driver" edge to the User entity.
+func (tu *TripUpdate) SetDriver(u *User) *TripUpdate {
+	return tu.SetDriverID(u.ID)
 }
 
 // AddPaymentIDs adds the "payment" edge to the Payment entity by IDs.
@@ -331,7 +330,7 @@ func (tu *TripUpdate) ClearUser() *TripUpdate {
 	return tu
 }
 
-// ClearDriver clears the "driver" edge to the DriverProfile entity.
+// ClearDriver clears the "driver" edge to the User entity.
 func (tu *TripUpdate) ClearDriver() *TripUpdate {
 	tu.mutation.ClearDriver()
 	return tu
@@ -528,7 +527,7 @@ func (tu *TripUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{trip.DriverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(driverprofile.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -541,7 +540,7 @@ func (tu *TripUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{trip.DriverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(driverprofile.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -911,9 +910,9 @@ func (tuo *TripUpdateOne) SetUser(u *User) *TripUpdateOne {
 	return tuo.SetUserID(u.ID)
 }
 
-// SetDriver sets the "driver" edge to the DriverProfile entity.
-func (tuo *TripUpdateOne) SetDriver(d *DriverProfile) *TripUpdateOne {
-	return tuo.SetDriverID(d.ID)
+// SetDriver sets the "driver" edge to the User entity.
+func (tuo *TripUpdateOne) SetDriver(u *User) *TripUpdateOne {
+	return tuo.SetDriverID(u.ID)
 }
 
 // AddPaymentIDs adds the "payment" edge to the Payment entity by IDs.
@@ -957,7 +956,7 @@ func (tuo *TripUpdateOne) ClearUser() *TripUpdateOne {
 	return tuo
 }
 
-// ClearDriver clears the "driver" edge to the DriverProfile entity.
+// ClearDriver clears the "driver" edge to the User entity.
 func (tuo *TripUpdateOne) ClearDriver() *TripUpdateOne {
 	tuo.mutation.ClearDriver()
 	return tuo
@@ -1184,7 +1183,7 @@ func (tuo *TripUpdateOne) sqlSave(ctx context.Context) (_node *Trip, err error) 
 			Columns: []string{trip.DriverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(driverprofile.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1197,7 +1196,7 @@ func (tuo *TripUpdateOne) sqlSave(ctx context.Context) (_node *Trip, err error) 
 			Columns: []string{trip.DriverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(driverprofile.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

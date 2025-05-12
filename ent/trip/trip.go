@@ -61,9 +61,9 @@ const (
 	UserColumn = "user_id"
 	// DriverTable is the table that holds the driver relation/edge.
 	DriverTable = "trips"
-	// DriverInverseTable is the table name for the DriverProfile entity.
-	// It exists in this package in order to avoid circular dependency with the "driverprofile" package.
-	DriverInverseTable = "driver_profiles"
+	// DriverInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	DriverInverseTable = "users"
 	// DriverColumn is the table column denoting the driver relation/edge.
 	DriverColumn = "driver_id"
 	// PaymentTable is the table that holds the payment relation/edge.
@@ -100,10 +100,21 @@ var Columns = []string{
 	FieldCompletedAt,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "trips"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"driver_profile_trips_driver",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}

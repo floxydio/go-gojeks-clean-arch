@@ -222,6 +222,21 @@ func (uu *UserUpdate) AddUserDriver(d ...*DriverProfile) *UserUpdate {
 	return uu.AddUserDriverIDs(ids...)
 }
 
+// AddDriverTripIDs adds the "driver_trips" edge to the Trip entity by IDs.
+func (uu *UserUpdate) AddDriverTripIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddDriverTripIDs(ids...)
+	return uu
+}
+
+// AddDriverTrips adds the "driver_trips" edges to the Trip entity.
+func (uu *UserUpdate) AddDriverTrips(t ...*Trip) *UserUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return uu.AddDriverTripIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -351,6 +366,27 @@ func (uu *UserUpdate) RemoveUserDriver(d ...*DriverProfile) *UserUpdate {
 		ids[i] = d[i].ID
 	}
 	return uu.RemoveUserDriverIDs(ids...)
+}
+
+// ClearDriverTrips clears all "driver_trips" edges to the Trip entity.
+func (uu *UserUpdate) ClearDriverTrips() *UserUpdate {
+	uu.mutation.ClearDriverTrips()
+	return uu
+}
+
+// RemoveDriverTripIDs removes the "driver_trips" edge to Trip entities by IDs.
+func (uu *UserUpdate) RemoveDriverTripIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemoveDriverTripIDs(ids...)
+	return uu
+}
+
+// RemoveDriverTrips removes "driver_trips" edges to Trip entities.
+func (uu *UserUpdate) RemoveDriverTrips(t ...*Trip) *UserUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return uu.RemoveDriverTripIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -713,6 +749,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.DriverTripsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DriverTripsTable,
+			Columns: []string{user.DriverTripsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedDriverTripsIDs(); len(nodes) > 0 && !uu.mutation.DriverTripsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DriverTripsTable,
+			Columns: []string{user.DriverTripsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.DriverTripsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DriverTripsTable,
+			Columns: []string{user.DriverTripsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -921,6 +1002,21 @@ func (uuo *UserUpdateOne) AddUserDriver(d ...*DriverProfile) *UserUpdateOne {
 	return uuo.AddUserDriverIDs(ids...)
 }
 
+// AddDriverTripIDs adds the "driver_trips" edge to the Trip entity by IDs.
+func (uuo *UserUpdateOne) AddDriverTripIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddDriverTripIDs(ids...)
+	return uuo
+}
+
+// AddDriverTrips adds the "driver_trips" edges to the Trip entity.
+func (uuo *UserUpdateOne) AddDriverTrips(t ...*Trip) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return uuo.AddDriverTripIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -1050,6 +1146,27 @@ func (uuo *UserUpdateOne) RemoveUserDriver(d ...*DriverProfile) *UserUpdateOne {
 		ids[i] = d[i].ID
 	}
 	return uuo.RemoveUserDriverIDs(ids...)
+}
+
+// ClearDriverTrips clears all "driver_trips" edges to the Trip entity.
+func (uuo *UserUpdateOne) ClearDriverTrips() *UserUpdateOne {
+	uuo.mutation.ClearDriverTrips()
+	return uuo
+}
+
+// RemoveDriverTripIDs removes the "driver_trips" edge to Trip entities by IDs.
+func (uuo *UserUpdateOne) RemoveDriverTripIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemoveDriverTripIDs(ids...)
+	return uuo
+}
+
+// RemoveDriverTrips removes "driver_trips" edges to Trip entities.
+func (uuo *UserUpdateOne) RemoveDriverTrips(t ...*Trip) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return uuo.RemoveDriverTripIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1435,6 +1552,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(driverprofile.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.DriverTripsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DriverTripsTable,
+			Columns: []string{user.DriverTripsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedDriverTripsIDs(); len(nodes) > 0 && !uuo.mutation.DriverTripsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DriverTripsTable,
+			Columns: []string{user.DriverTripsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.DriverTripsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DriverTripsTable,
+			Columns: []string{user.DriverTripsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(trip.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

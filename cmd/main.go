@@ -30,6 +30,7 @@ func main() {
 	echoCall := router.InitRouter()
 
 	go pkg.KafkaReadOrderCreated()
+	go pkg.KafkaReadAssign()
 
 	// Listen port
 	portRunner := os.Getenv("PORT_RUNNER")

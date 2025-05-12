@@ -103,3 +103,33 @@ func (svc *ClientOrderHandler) ClientNotifWebsocket(c echo.Context) error {
 
 	return nil
 }
+
+func (svc *ClientOrderHandler) DriverNotifWebsocket(c echo.Context) error {
+	driverId := c.Param("driver_id")
+
+	wsck, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+
+	if err != nil {
+		return c.JSON(500, config.GlobalResponseMsg{
+			Status:  500,
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	pkg.SaveDriverSocket(driverId, wsck)
+
+	defer func() {
+		pkg.RemoveDriverSocket(driverId)
+		wsck.Close()
+	}()
+
+	for {
+		_, _, err := wsck.ReadMessage()
+		if err != nil {
+			log.Println("Driver disconnected:", driverId)
+			break
+		}
+	}
+	return nil
+}

@@ -42,7 +42,7 @@ func (Trip) Fields() []ent.Field {
 func (Trip) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("user", User.Type).Ref("user_trips").Field("user_id").Unique().Required(),
-		edge.From("driver", DriverProfile.Type).Ref("trips_driver").Field("driver_id").Unique(),
+		edge.From("driver", User.Type).Ref("driver_trips").Field("driver_id").Unique(),
 		edge.To("payment", Payment.Type),
 		edge.To("ratings", TripRating.Type),
 	}
